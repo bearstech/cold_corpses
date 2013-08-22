@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-from os.path import walk, join, isfile
+from os import walk
+import codecs
+from os.path import join, isfile
 
 from phply.phplex import lexer
 from phply.phpparse import parser
@@ -28,12 +30,14 @@ def visitor(l):
 
 
 def analyze(path):
-    with open(path, 'r') as f:
+    with codecs.open(path, 'r', 'latin1') as f:
+        src = f.read()
         try:
-            items = parser.parse(f.read(), tracking=True, lexer=lexer)
+            items = parser.parse(src, tracking=True, lexer=lexer.clone())
         except SyntaxError as e:
+            print "Syntax Error", e.filename, e
+        except ValueError as e:
             print "Syntax Error", e
-            raise e
         else:
             for ast in items:
                 if hasattr(ast, 'generic'):
@@ -44,18 +48,17 @@ def analyze(path):
                 #visitor(item)
 
 
-def tree(arg, dirname, names):
-    for name in names:
-        path = join(dirname, name)
-        if isfile(path):
-            pp = name.split('.')
-            if len(pp) > 1:
-                if pp[-1] == "php":
-                    print path
-                    analyze(path)
 
 p = sys.argv[1]
 if isfile(p):
     analyze(p)
 else:
-    walk(p, tree, None)
+    for root, dirname, names in walk(p):
+        for name in names:
+            path = join(root, name)
+            if isfile(path):
+                pp = name.split('.')
+                if len(pp) > 1:
+                    if pp[-1] == "php":
+                        print path
+                        analyze(path)
