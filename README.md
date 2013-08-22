@@ -9,8 +9,9 @@ Usage
 -----
 
     virtualenv .
+    source bin/activate
     pip install -r requirements.txt
-    ./dump.py /path/to/file/or/folder/with/php
+    ./cold.py /path/to/file/or/folder/with/php
 
 Licence
 -------
