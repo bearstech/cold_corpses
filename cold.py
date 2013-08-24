@@ -9,6 +9,9 @@ from phply.phplex import lexer
 from phply.phpparse import parser
 from phply import phpast as php
 
+from pygments.lexers.web import PhpLexer
+from pygments.token import Token
+
 
 def visitor(l):
     if type(l) is list:
@@ -40,18 +43,38 @@ def analyze(path):
             print "Syntax Error", e
         else:
             for ast in items:
-                if hasattr(ast, 'generic'):
-                    item = ast.generic(with_lineno=True)
-                else:
-                    item = ast
-                print item
+                print ast
+                #if hasattr(ast, 'generic'):
+                    #item = ast.generic(with_lineno=True)
+                #else:
+                    #item = ast
+                #print item
                 #visitor(item)
 
+
+def analyze_tokens(tokens):
+    for token in tokens:
+        if token[0] == Token.Name.Other:
+            before = token[1]
+        elif token[0] == Token.Name.Builtin:
+            yield token
+        elif token[0] == Token.Keyword:
+            before = token[1]
+        elif token == (Token.Punctuation, u'(') and before:
+            yield before
+        else:
+            before = None
+
+def lex(path):
+    with open(path, 'r') as f:
+        l = PhpLexer()
+        for t in analyze_tokens(l.get_tokens(f.read())):
+            print t
 
 
 p = sys.argv[1]
 if isfile(p):
-    analyze(p)
+    lex(p)
 else:
     for root, dirname, names in walk(p):
         for name in names:
@@ -60,5 +83,7 @@ else:
                 pp = name.split('.')
                 if len(pp) > 1:
                     if pp[-1] == "php":
+                        print
                         print path
-                        analyze(path)
+                        print
+                        lex(path)
