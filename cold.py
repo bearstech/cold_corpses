@@ -43,8 +43,9 @@ def analyze_tokens(tokens):
 
 SUSPICIOUS = set(u'eval curl_exec base64_decode mail call_user_func \
                  call_user_func_array call_user_method call_user_method_array\
-                 exec system passthru pcntl_exec popen proc_open\
+                 exec system passthru pcntl_exec popen proc_open shell_exec\
                  socket_connect'.split(' '))
+# http://fr.php.net/manual/en/features.safe-mode.functions.php
 TOO_LARGE = 512
 
 
