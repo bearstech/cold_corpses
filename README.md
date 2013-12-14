@@ -31,6 +31,9 @@ Example:
         ('suspicious_builtin', u'curl_exec')
         ('suspicious_builtin', u'call_user_func_array')
 
+My hazardous function list is short, but Drupal handles it well.
+Wordpress is far more evil, and I didn't test plugins yet!
+
 Todo
 ----
 
