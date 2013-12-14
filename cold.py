@@ -5,10 +5,6 @@ from os import walk
 import codecs
 from os.path import join, isfile
 
-from phply.phplex import lexer
-from phply.phpparse import parser
-from phply import phpast as php
-
 from pygments.lexers.web import PhpLexer
 from pygments.token import Token
 
@@ -32,26 +28,6 @@ def visitor(l):
                         visitor(arg[a])
 
 
-def analyze(path):
-    with codecs.open(path, 'r', 'latin1') as f:
-        src = f.read()
-        try:
-            items = parser.parse(src, tracking=True, lexer=lexer.clone())
-        except SyntaxError as e:
-            print "Syntax Error", e.filename, e
-        except ValueError as e:
-            print "Syntax Error", e
-        else:
-            for ast in items:
-                print ast
-                #if hasattr(ast, 'generic'):
-                    #item = ast.generic(with_lineno=True)
-                #else:
-                    #item = ast
-                #print item
-                #visitor(item)
-
-
 def analyze_tokens(tokens):
     for token in tokens:
         if token[0] == Token.Name.Other:
@@ -66,26 +42,32 @@ def analyze_tokens(tokens):
             before = None
 
 
-SUSPICIOUS = set(u'eval curl_exec base64_decode mail'.split(' '))
+SUSPICIOUS = set(u'eval curl_exec base64_decode mail call_user_func \
+                 call_user_func_array call_user_method call_user_method_array\
+                 socket_connect'.split(' '))
+TOO_LARGE = 512
 
 
 def analyze_suspicious_native(tokens):
     for token in tokens:
+        #if token[0] in [ Token.Literal.String.Double, Token.Literal.String.Single]:
+            #if len(token[1]) > TOO_LARGE:
+                #yield 'large_string', token[1]
         if token[0] == Token.Name.Builtin:
             if token[1] in SUSPICIOUS:
-                yield token[1]
+                yield 'suspicious_builtin', token[1]
 
 
 def lex(path, analyze):
     with open(path, 'r') as f:
         l = PhpLexer()
         for t in analyze(l.get_tokens(f.read())):
-            print "\t", t
+            yield t
 
 
 p = sys.argv[1]
 if isfile(p):
-    lex(p)
+    lex(p, analyze_suspicious_native)
 else:
     for root, dirname, names in walk(p):
         for name in names:
@@ -94,7 +76,9 @@ else:
                 pp = name.split('.')
                 if len(pp) > 1:
                     if pp[-1] == "php":
-                        print
-                        print path
-                        print
-                        lex(path, analyze_suspicious_native)
+                        suspicious = list(lex(path, analyze_suspicious_native))
+                        if suspicious:
+                            print
+                            print path
+                            for s in suspicious:
+                                print "\t", s

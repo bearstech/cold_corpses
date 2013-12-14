@@ -3,14 +3,22 @@ Cold corpses
 
 Mad scientist engine for analyzing PHP code.
 
-The target is seeking warning while migrating from 5.3 to 5.4.
 
 Usage
 -----
 
+Debian:
+
+    apt-get install python-pygments
+
+Virtualenv:
+
     virtualenv .
     source bin/activate
     pip install -r requirements.txt
+
+Use it:
+
     ./cold.py /path/to/file/or/folder/with/php
 
 Licence
