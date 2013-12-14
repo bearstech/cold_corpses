@@ -82,4 +82,4 @@ else:
                             print
                             print path
                             for s in suspicious:
-                                print "\t", s
+                                print "\t", s[1]
