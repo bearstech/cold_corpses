@@ -2,7 +2,6 @@
 
 import sys
 from os import walk
-import codecs
 from os.path import join, isfile
 
 from pygments.lexers.web import PhpLexer
