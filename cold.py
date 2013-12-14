@@ -65,11 +65,22 @@ def analyze_tokens(tokens):
         else:
             before = None
 
-def lex(path):
+
+SUSPICIOUS = set(u'eval curl_exec base64_decode mail'.split(' '))
+
+
+def analyze_suspicious_native(tokens):
+    for token in tokens:
+        if token[0] == Token.Name.Builtin:
+            if token[1] in SUSPICIOUS:
+                yield token[1]
+
+
+def lex(path, analyze):
     with open(path, 'r') as f:
         l = PhpLexer()
-        for t in analyze_tokens(l.get_tokens(f.read())):
-            print t
+        for t in analyze(l.get_tokens(f.read())):
+            print "\t", t
 
 
 p = sys.argv[1]
@@ -86,4 +97,4 @@ else:
                         print
                         print path
                         print
-                        lex(path)
+                        lex(path, analyze_suspicious_native)
