@@ -43,6 +43,7 @@ def analyze_tokens(tokens):
 
 SUSPICIOUS = set(u'eval curl_exec base64_decode mail call_user_func \
                  call_user_func_array call_user_method call_user_method_array\
+                 exec system passthru pcntl_exec popen proc_open\
                  socket_connect'.split(' '))
 TOO_LARGE = 512
 
@@ -74,7 +75,7 @@ else:
             if isfile(path):
                 pp = name.split('.')
                 if len(pp) > 1:
-                    if pp[-1] == "php":
+                    if pp[-1] in ["php", "module", "inc", "txt"]:
                         suspicious = list(lex(path, analyze_suspicious_native))
                         if suspicious:
                             print
