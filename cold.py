@@ -22,10 +22,28 @@ def analyze_tokens(tokens):
             before = None
 
 
-SUSPICIOUS = set(u'eval curl_exec base64_decode mail call_user_func \
-                 call_user_func_array call_user_method call_user_method_array\
-                 exec system passthru pcntl_exec popen proc_open shell_exec\
-                 socket_connect'.split(' '))
+class Hazardous(object):
+    def __init__(self):
+        self.hazardous = {}
+        raw = {
+            'eval': u'eval',
+            'obfscure': u'str_rot13 base64_decode',
+            'network': u'curl_exec mail socket_connect',
+            #'dynamic_func': u'call_user_func call_user_func_array call_user_method call_user_method_array',
+            'shell': u'exec system passthru pcntl_exec popen proc_open shell_exec'
+        }
+        for kind, functions in raw.items():
+            self.hazardous[kind] = set(functions.split(u' '))
+
+    def __contains__(self, needle):
+        for kind, functions in self.hazardous.items():
+            if needle in functions:
+                return True
+        return False
+
+
+SUSPICIOUS = Hazardous()
+
 # http://fr.php.net/manual/en/features.safe-mode.functions.php
 TOO_LARGE = 512
 
@@ -60,7 +78,7 @@ else:
             pp = name.split('.')
             if len(pp) > 1 and pp[-1] in ["php", "module", "inc", "txt"]:
                 mtime = getmtime(path)
-                if mtime <= last_time: # deja vue
+                if mtime <= last_time:  # deja vue
                     continue
                 suspicious = list(lex(path, analyze_suspicious_native))
                 if suspicious:
