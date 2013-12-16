@@ -8,25 +8,6 @@ from pygments.lexers.web import PhpLexer
 from pygments.token import Token
 
 
-def visitor(l):
-    if type(l) is list:
-        for ll in l:
-            visitor(ll)
-    else:
-        name = l[0]
-        args = l[1:]
-        if name == "FunctionCall":
-            print l
-        for arg in args:
-            if type(arg) is list:
-                for i in list:
-                    visitor(l)
-            if type(arg) is dict:
-                for a in ['node', 'nodes', 'params']:
-                    if a in arg:
-                        visitor(arg[a])
-
-
 def analyze_tokens(tokens):
     for token in tokens:
         if token[0] == Token.Name.Other:
