@@ -2,7 +2,7 @@
 
 import sys
 from os import walk
-from os.path import join, isfile
+from os.path import join, isfile, getmtime
 
 from pygments.lexers.web import PhpLexer
 from pygments.token import Token
@@ -48,19 +48,23 @@ def lex(path, analyze):
 
 
 p = sys.argv[1]
+last_time = 0
 if isfile(p):
     lex(p, analyze_suspicious_native)
 else:
     for root, dirname, names in walk(p):
         for name in names:
             path = join(root, name)
-            if isfile(path):
-                pp = name.split('.')
-                if len(pp) > 1:
-                    if pp[-1] in ["php", "module", "inc", "txt"]:
-                        suspicious = list(lex(path, analyze_suspicious_native))
-                        if suspicious:
-                            print
-                            print path
-                            for s in suspicious:
-                                print "\t", s[1]
+            if not isfile(path):
+                continue
+            pp = name.split('.')
+            if len(pp) > 1 and pp[-1] in ["php", "module", "inc", "txt"]:
+                mtime = getmtime(path)
+                if mtime <= last_time: # deja vue
+                    continue
+                suspicious = list(lex(path, analyze_suspicious_native))
+                if suspicious:
+                    print
+                    print path
+                    for s in suspicious:
+                        print "\t", s[1]
