@@ -39,6 +39,8 @@ Todo
 
  * √ read and parse PHP source file
  * √ compare builtin with a hazardous function lists
+ * _ hashes for exclude duplicate file
+ * _ hash function for tracking copy/paste
  * _ withelist file (with a sha1 and a path)
  * _ iterative checking with mtime
  * _ using *rdup* for optimizing folder watching
