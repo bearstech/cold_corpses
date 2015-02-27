@@ -69,7 +69,7 @@ def suspicious(path):
         print
         print path
         for s in suspicious:
-            print "\t", s[1]
+            print "\t", s[0], s[1]
 
 
 p = sys.argv[1]
