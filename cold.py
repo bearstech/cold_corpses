@@ -30,6 +30,7 @@ class Hazardous(object):
             'obfscure': u'str_rot13 base64_decode',
             'network': u'curl_exec mail socket_connect',
             #'dynamic_func': u'call_user_func call_user_func_array call_user_method call_user_method_array',
+            'compression': u'lzw_decompress', # Check if it's inline compression.
             'shell': u'exec system passthru pcntl_exec popen proc_open shell_exec'
         }
         for kind, functions in raw.items():
@@ -65,10 +66,19 @@ def lex(path, analyze):
             yield t
 
 
+def suspicious(path):
+    suspicious = list(lex(path, analyze_suspicious_native))
+    if suspicious:
+        print
+        print path
+        for s in suspicious:
+            print "\t", s[1]
+
+
 p = sys.argv[1]
 last_time = 0
 if isfile(p):
-    lex(p, analyze_suspicious_native)
+    suspicious(p)
 else:
     for root, dirname, names in walk(p):
         for name in names:
@@ -80,9 +90,4 @@ else:
                 mtime = getmtime(path)
                 if mtime <= last_time:  # deja vue
                     continue
-                suspicious = list(lex(path, analyze_suspicious_native))
-                if suspicious:
-                    print
-                    print path
-                    for s in suspicious:
-                        print "\t", s[1]
+                suspicious(path)
