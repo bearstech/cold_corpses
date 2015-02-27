@@ -24,7 +24,7 @@ def analyze_tokens(tokens):
 
 class Hazardous(object):
     def __init__(self):
-        self.hazardous = {}
+        self.hazardous = set()
         raw = {
             'eval': u'eval',
             'obfscure': u'str_rot13 base64_decode',
@@ -34,13 +34,10 @@ class Hazardous(object):
             'shell': u'exec system passthru pcntl_exec popen proc_open shell_exec'
         }
         for kind, functions in raw.items():
-            self.hazardous[kind] = set(functions.split(u' '))
+            self.hazardous |= set(functions.split(u' '))
 
     def __contains__(self, needle):
-        for kind, functions in self.hazardous.items():
-            if needle in functions:
-                return True
-        return False
+        return needle in self.hazardous
 
 
 SUSPICIOUS = Hazardous()
