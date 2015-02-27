@@ -48,9 +48,9 @@ TOO_LARGE = 512
 
 def analyze_suspicious_native(tokens):
     for token in tokens:
-        #if token[0] in [ Token.Literal.String.Double, Token.Literal.String.Single]:
-            #if len(token[1]) > TOO_LARGE:
-                #yield 'large_string', token[1]
+        if token[0] in [Token.Literal.String.Double, Token.Literal.String.Single]:
+            if len(token[1]) > TOO_LARGE:
+                yield 'large_string', len(token[1])
         if token[0] == Token.Name.Builtin:
             if token[1] in SUSPICIOUS:
                 yield 'suspicious_builtin', token[1]
